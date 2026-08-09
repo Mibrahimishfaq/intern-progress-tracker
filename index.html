@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intern Management System | Weekly Progress &amp; Reports</title>
+  <meta name="description" content="Weekly Progress & Reports module for the Intern Management System — track, filter, sort, and export intern task progress.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===================== HEADER / TOP BAR ===================== -->
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">IMS</span>
+        <div class="brand__text">
+          <h1 class="brand__title">Intern Management System</h1>
+          <p class="brand__subtitle">Weekly Progress &amp; Reports Module</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="intern-chip">
+          <span class="intern-chip__avatar" aria-hidden="true">MI</span>
+          <div class="intern-chip__meta">
+            <span class="intern-chip__name">Muhammad Ibrahim</span>
+            <span class="intern-chip__role">Web-Development Intern</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+
+    <!-- ===================== SUMMARY CARDS ===================== -->
+    <section class="summary-grid" aria-label="Progress summary">
+      <div class="summary-card">
+        <p class="summary-card__label">Total Tasks</p>
+        <p class="summary-card__value" id="statTotal">0</p>
+        <p class="summary-card__hint">All logged entries</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Completed</p>
+        <p class="summary-card__value summary-card__value--success" id="statCompleted">0</p>
+        <p class="summary-card__hint">Tasks fully closed out</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">In Progress</p>
+        <p class="summary-card__value summary-card__value--warning" id="statInProgress">0</p>
+        <p class="summary-card__hint">Currently being worked on</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Total Hours</p>
+        <p class="summary-card__value summary-card__value--info" id="statHours">0</p>
+        <p class="summary-card__hint">Logged across all weeks</p>
+      </div>
+    </section>
+
+    <!-- ===================== CONTROL PANEL ===================== -->
+    <section class="panel" aria-label="Filter and manage progress entries">
+      <div class="panel__header">
+        <div>
+          <h2 class="panel__title">Weekly Progress Log</h2>
+          <p class="panel__subtitle">Filter, sort, and manage submitted task entries</p>
+        </div>
+        <div class="panel__actions">
+          <button type="button" class="btn btn--ghost" id="exportCsvBtn">
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Export to CSV
+          </button>
+          <button type="button" class="btn btn--primary" id="addEntryBtn">
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+            Add Progress Entry
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label for="filterWeek">Filter by Week</label>
+          <select id="filterWeek" class="select-input">
+            <option value="all">All Weeks</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterStatus">Filter by Status</label>
+          <select id="filterStatus" class="select-input">
+            <option value="all">All Statuses</option>
+            <option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div class="filter-group filter-group--search">
+          <label for="filterSearch">Search Task</label>
+          <input type="search" id="filterSearch" class="select-input" placeholder="Search by task name…">
+        </div>
+        <button type="button" class="btn btn--text" id="resetFiltersBtn">Reset filters</button>
+      </div>
+
+      <!-- ===================== TABLE ===================== -->
+      <div class="table-wrapper">
+        <table class="progress-table" id="progressTable">
+          <thead>
+            <tr>
+              <th scope="col" data-sort-key="taskName" class="sortable">
+                <span>Task Name</span>
+                <span class="sort-icon" aria-hidden="true">↕</span>
+              </th>
+              <th scope="col" data-sort-key="week" class="sortable">
+                <span>Week</span>
+                <span class="sort-icon" aria-hidden="true">↕</span>
+              </th>
+              <th scope="col" data-sort-key="hours" class="sortable">
+                <span>Hours Spent</span>
+                <span class="sort-icon" aria-hidden="true">↕</span>
+              </th>
+              <th scope="col" data-sort-key="status" class="sortable">
+                <span>Status</span>
+                <span class="sort-icon" aria-hidden="true">↕</span>
+              </th>
+              <th scope="col">Notes / Comments</th>
+              <th scope="col" class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Rows injected by script.js -->
+          </tbody>
+        </table>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 12h6m-6 4h6M9 8h6M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
+          <p>No entries match your current filters.</p>
+          <button type="button" class="btn btn--text" id="emptyResetBtn">Clear filters</button>
+        </div>
+      </div>
+
+      <p class="table-footnote" id="resultsCount"></p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Intern Management System &mdash; Weekly Progress &amp; Reports Module</p>
+  </footer>
+
+  <!-- ===================== ADD / EDIT ENTRY MODAL ===================== -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modalTitle">Add Progress Entry</h2>
+        <button type="button" class="modal__close" id="modalCloseBtn" aria-label="Close dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="entryForm" class="entry-form" novalidate>
+        <input type="hidden" id="entryId" name="entryId">
+
+        <div class="form-group">
+          <label for="taskName">Task Name <span class="required">*</span></label>
+          <input type="text" id="taskName" name="taskName" placeholder="e.g. Build authentication flow" required>
+          <span class="form-error" id="taskNameError"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="weekNumber">Week Number <span class="required">*</span></label>
+            <select id="weekNumber" name="weekNumber" required>
+              <option value="" disabled selected>Select week</option>
+              <option value="1">Week 1</option>
+              <option value="2">Week 2</option>
+              <option value="3">Week 3</option>
+              <option value="4">Week 4</option>
+              <option value="5">Week 5</option>
+              <option value="6">Week 6</option>
+            </select>
+            <span class="form-error" id="weekNumberError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="hoursSpent">Hours Spent <span class="required">*</span></label>
+            <input type="number" id="hoursSpent" name="hoursSpent" min="0" max="80" step="0.5" placeholder="e.g. 6" required>
+            <span class="form-error" id="hoursSpentError"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status <span class="required">*</span></label>
+          <select id="status" name="status" required>
+            <option value="" disabled selected>Select status</option>
+            <option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <span class="form-error" id="statusError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes / Comments</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Optional details, blockers, or context…"></textarea>
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" class="btn btn--ghost" id="modalCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="modalSubmitBtn">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST NOTIFICATION ===================== -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
