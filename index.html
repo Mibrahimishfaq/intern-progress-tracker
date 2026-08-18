@@ -3,23 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Intern Management System | Weekly Progress &amp; Reports</title>
-  <meta name="description" content="Weekly Progress & Reports module for the Intern Management System — track, filter, sort, and export intern task progress.">
+  <title>SafeX Solutions | Intern Analytics & Reporting Dashboard</title>
+  <meta name="description" content="SafeX Solutions Intern Management System — Weekly Progress, Chart Analytics, and Executive PDF/CSV Export Module.">
+  
+  <!-- Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-  <!-- ===================== HEADER / TOP BAR ===================== -->
+  <!-- ===================== SAFEX HEADER ===================== -->
   <header class="app-header">
     <div class="app-header__inner">
       <div class="brand">
-        <span class="brand__mark" aria-hidden="true">IMS</span>
+        <div class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
         <div class="brand__text">
-          <h1 class="brand__title">Intern Management System</h1>
-          <p class="brand__subtitle">Weekly Progress &amp; Reports Module</p>
+          <h1 class="brand__title">SafeX Solutions</h1>
+          <p class="brand__subtitle">Intern Analytics &amp; Reporting Module</p>
         </div>
       </div>
       <div class="header-actions">
@@ -27,59 +37,94 @@
           <span class="intern-chip__avatar" aria-hidden="true">MI</span>
           <div class="intern-chip__meta">
             <span class="intern-chip__name">Muhammad Ibrahim</span>
-            <span class="intern-chip__role">Web-Development Intern</span>
+            <span class="intern-chip__role">Software Engineering Lead</span>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="dashboard">
+  <!-- ===================== MAIN DASHBOARD CONTAINER ===================== -->
+  <main class="dashboard" id="exportableArea">
 
-    <!-- ===================== SUMMARY CARDS ===================== -->
-    <section class="summary-grid" aria-label="Progress summary">
+    <!-- Printable Header (Visible only in PDF / Print Mode) -->
+    <div class="print-header">
+      <div class="print-header__title">SafeX Solutions — Weekly Progress Executive Report</div>
+      <div class="print-header__meta" id="printReportMeta">Generated on: --</div>
+    </div>
+
+    <!-- ===================== KPI SUMMARY CARDS ===================== -->
+    <section class="summary-grid" aria-label="Executive KPI Summary">
+      <div class="summary-card">
+        <p class="summary-card__label">Total Hours Logged</p>
+        <p class="summary-card__value summary-card__value--primary" id="statHours">0h</p>
+        <p class="summary-card__hint">Across all active tasks</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Completion Rate</p>
+        <p class="summary-card__value summary-card__value--success" id="statCompletionRate">0%</p>
+        <p class="summary-card__hint">Tasks closed out successfully</p>
+      </div>
       <div class="summary-card">
         <p class="summary-card__label">Total Tasks</p>
         <p class="summary-card__value" id="statTotal">0</p>
-        <p class="summary-card__hint">All logged entries</p>
+        <p class="summary-card__hint">All logged records</p>
       </div>
       <div class="summary-card">
-        <p class="summary-card__label">Completed</p>
-        <p class="summary-card__value summary-card__value--success" id="statCompleted">0</p>
-        <p class="summary-card__hint">Tasks fully closed out</p>
-      </div>
-      <div class="summary-card">
-        <p class="summary-card__label">In Progress</p>
-        <p class="summary-card__value summary-card__value--warning" id="statInProgress">0</p>
-        <p class="summary-card__hint">Currently being worked on</p>
-      </div>
-      <div class="summary-card">
-        <p class="summary-card__label">Total Hours</p>
-        <p class="summary-card__value summary-card__value--info" id="statHours">0</p>
-        <p class="summary-card__hint">Logged across all weeks</p>
+        <p class="summary-card__label">Active Interns</p>
+        <p class="summary-card__value summary-card__value--teal" id="statActiveInterns">1</p>
+        <p class="summary-card__hint">Tracked in system</p>
       </div>
     </section>
 
-    <!-- ===================== CONTROL PANEL ===================== -->
-    <section class="panel" aria-label="Filter and manage progress entries">
+    <!-- ===================== ANALYTICS CHARTS SECTION ===================== -->
+    <section class="charts-grid" aria-label="Visual Analytics">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <h3 class="chart-card__title">Weekly Progress &amp; Hours Logged</h3>
+          <span class="chart-card__badge">Bar / Line Chart</span>
+        </div>
+        <div class="chart-card__body">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <h3 class="chart-card__title">Task Status Distribution</h3>
+          <span class="chart-card__badge">Doughnut Chart</span>
+        </div>
+        <div class="chart-card__body">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DATA TABLE PANEL ===================== -->
+    <section class="panel" aria-label="Weekly Progress Log">
       <div class="panel__header">
         <div>
-          <h2 class="panel__title">Weekly Progress Log</h2>
-          <p class="panel__subtitle">Filter, sort, and manage submitted task entries</p>
+          <h2 class="panel__title">Weekly Progress Records</h2>
+          <p class="panel__subtitle">Manage, filter, and review team performance data</p>
         </div>
-        <div class="panel__actions">
+        <div class="panel__actions no-print">
           <button type="button" class="btn btn--ghost" id="exportCsvBtn">
-            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            Export to CSV
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Export CSV
+          </button>
+          <button type="button" class="btn btn--secondary" id="exportPdfBtn">
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Download PDF Report
           </button>
           <button type="button" class="btn btn--primary" id="addEntryBtn">
-            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14m-7-7h14"/></svg>
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
             Add Progress Entry
           </button>
         </div>
       </div>
 
-      <div class="filter-bar">
+      <!-- Filter Controls -->
+      <div class="filter-bar no-print">
         <div class="filter-group">
           <label for="filterWeek">Filter by Week</label>
           <select id="filterWeek" class="select-input">
@@ -97,12 +142,12 @@
         </div>
         <div class="filter-group filter-group--search">
           <label for="filterSearch">Search Task</label>
-          <input type="search" id="filterSearch" class="select-input" placeholder="Search by task name…">
+          <input type="search" id="filterSearch" class="select-input" placeholder="Search task name or notes…">
         </div>
-        <button type="button" class="btn btn--text" id="resetFiltersBtn">Reset filters</button>
+        <button type="button" class="btn btn--text" id="resetFiltersBtn">Reset Filters</button>
       </div>
 
-      <!-- ===================== TABLE ===================== -->
+      <!-- Progress Table -->
       <div class="table-wrapper">
         <table class="progress-table" id="progressTable">
           <thead>
@@ -116,35 +161,61 @@
                 <span class="sort-icon" aria-hidden="true">↕</span>
               </th>
               <th scope="col" data-sort-key="hours" class="sortable">
-                <span>Hours Spent</span>
+                <span>Hours</span>
                 <span class="sort-icon" aria-hidden="true">↕</span>
               </th>
               <th scope="col" data-sort-key="status" class="sortable">
                 <span>Status</span>
                 <span class="sort-icon" aria-hidden="true">↕</span>
               </th>
-              <th scope="col">Notes / Comments</th>
-              <th scope="col" class="col-actions">Actions</th>
+              <th scope="col">Notes &amp; Comments</th>
+              <th scope="col" class="col-actions no-print">Actions</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <!-- Rows injected by script.js -->
+            <!-- Dynamic rows injected by script.js -->
           </tbody>
         </table>
 
         <div class="empty-state" id="emptyState" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 12h6m-6 4h6M9 8h6M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
-          <p>No entries match your current filters.</p>
-          <button type="button" class="btn btn--text" id="emptyResetBtn">Clear filters</button>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6M9 8h6M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/></svg>
+          <p>No records found matching current criteria.</p>
+          <button type="button" class="btn btn--text" id="emptyResetBtn">Clear Filters</button>
         </div>
       </div>
 
-      <p class="table-footnote" id="resultsCount"></p>
+      <!-- Pagination & Table Footer Controls -->
+      <div class="table-footer no-print">
+        <div class="pagination-info" id="paginationInfo">Showing 0 of 0 entries</div>
+        
+        <div class="pagination-controls">
+          <div class="rows-per-page">
+            <label for="rowsPerPage">Rows per page:</label>
+            <select id="rowsPerPage" class="select-input select-input--sm">
+              <option value="5" selected>5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+            </select>
+          </div>
+          
+          <div class="pagination-buttons">
+            <button type="button" class="btn btn--pagination" id="prevPageBtn" disabled aria-label="Previous Page">
+              ‹ Prev
+            </button>
+            <span class="page-num-indicator" id="pageIndicator">Page 1 of 1</span>
+            <button type="button" class="btn btn--pagination" id="nextPageBtn" disabled aria-label="Next Page">
+              Next ›
+            </button>
+          </div>
+        </div>
+      </div>
+
     </section>
+
   </main>
 
-  <footer class="app-footer">
-    <p>Intern Management System &mdash; Weekly Progress &amp; Reports Module</p>
+  <footer class="app-footer no-print">
+    <p>&copy; 2026 SafeX Solutions. All Rights Reserved. Intern Management System v2.0</p>
   </footer>
 
   <!-- ===================== ADD / EDIT ENTRY MODAL ===================== -->
@@ -153,7 +224,7 @@
       <div class="modal__header">
         <h2 class="modal__title" id="modalTitle">Add Progress Entry</h2>
         <button type="button" class="modal__close" id="modalCloseBtn" aria-label="Close dialog">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
 
@@ -162,7 +233,7 @@
 
         <div class="form-group">
           <label for="taskName">Task Name <span class="required">*</span></label>
-          <input type="text" id="taskName" name="taskName" placeholder="e.g. Build authentication flow" required>
+          <input type="text" id="taskName" name="taskName" placeholder="e.g. Implement Chart.js integration" required>
           <span class="form-error" id="taskNameError"></span>
         </div>
 
@@ -183,7 +254,7 @@
 
           <div class="form-group">
             <label for="hoursSpent">Hours Spent <span class="required">*</span></label>
-            <input type="number" id="hoursSpent" name="hoursSpent" min="0" max="80" step="0.5" placeholder="e.g. 6" required>
+            <input type="number" id="hoursSpent" name="hoursSpent" min="0.5" max="80" step="0.5" placeholder="e.g. 6.5" required>
             <span class="form-error" id="hoursSpentError"></span>
           </div>
         </div>
@@ -201,7 +272,7 @@
 
         <div class="form-group">
           <label for="notes">Notes / Comments</label>
-          <textarea id="notes" name="notes" rows="3" placeholder="Optional details, blockers, or context…"></textarea>
+          <textarea id="notes" name="notes" rows="3" placeholder="Optional implementation details or blockers…"></textarea>
         </div>
 
         <div class="modal__footer">
